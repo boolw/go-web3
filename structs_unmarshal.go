@@ -137,6 +137,47 @@ func (t *Transaction) unmarshalJSON(v *fastjson.Value) error {
 }
 
 // UnmarshalJSON implements the unmarshal interface
+func (t *TransactionResp) UnmarshalJSON(buf []byte) error {
+	p := defaultPool.Get()
+	defer defaultPool.Put(p)
+
+	v, err := p.Parse(string(buf))
+	if err != nil {
+		return err
+	}
+	if err := t.Transaction.unmarshalJSON(v); err != nil {
+		return err
+	}
+	return t.unmarshalJSON(v)
+}
+
+func (t *TransactionResp) unmarshalJSON(v *fastjson.Value) error {
+	var err error
+	if err := decodeHash(&t.BlockHash, v, "blockHash"); err != nil {
+		return err
+	}
+	if t.BlockNumber, err = decodeUint(v, "blockNumber"); err != nil {
+		return err
+	}
+	if t.Nonce, err = decodeUint(v, "nonce"); err != nil {
+		return err
+	}
+	if t.TransactionIndex, err = decodeUint(v, "transactionIndex"); err != nil {
+		return err
+	}
+	if t.V, err = decodeBigInt(t.V, v, "v"); err != nil {
+		return err
+	}
+	if t.R, err = decodeBigInt(t.R, v, "r"); err != nil {
+		return err
+	}
+	if t.S, err = decodeBigInt(t.S, v, "s"); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UnmarshalJSON implements the unmarshal interface
 func (r *Receipt) UnmarshalJSON(buf []byte) error {
 	p := defaultPool.Get()
 	defer defaultPool.Put(p)

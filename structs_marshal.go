@@ -3,7 +3,6 @@ package web3
 import (
 	"encoding/hex"
 	"fmt"
-
 	"github.com/valyala/fastjson"
 )
 
@@ -78,6 +77,43 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 	o.Set("gas", a.NewString(fmt.Sprintf("0x%x", t.Gas)))
 	if t.Value != nil {
 		o.Set("value", a.NewString(fmt.Sprintf("0x%x", t.Value)))
+	}
+
+	res := o.MarshalTo(nil)
+	defaultArena.Put(a)
+	return res, nil
+}
+
+// MarshalJSON implements the Marshal interface.
+func (t *TransactionResp) MarshalJSON() ([]byte, error) {
+	a := defaultArena.Get()
+
+	o := a.NewObject()
+	o.Set("from", a.NewString(t.From.String()))
+	if t.To != "" {
+		o.Set("to", a.NewString(t.To))
+	}
+	if len(t.Input) != 0 {
+		o.Set("input", a.NewString("0x"+hex.EncodeToString(t.Input)))
+	}
+	o.Set("gasPrice", a.NewString(fmt.Sprintf("0x%x", t.GasPrice)))
+	o.Set("gas", a.NewString(fmt.Sprintf("0x%x", t.Gas)))
+	if t.Value != nil {
+		o.Set("value", a.NewString(fmt.Sprintf("0x%x", t.Value)))
+	}
+
+	o.Set("blockHash", a.NewString(t.Hash.String()))
+	o.Set("blockNumber", a.NewString(fmt.Sprintf("0x%x", t.BlockNumber)))
+	o.Set("nonce", a.NewString(fmt.Sprintf("0x%x", t.Nonce)))
+	o.Set("transactionIndex", a.NewString(fmt.Sprintf("0x%x", t.TransactionIndex)))
+	if t.V != nil {
+		o.Set("v", a.NewString(fmt.Sprintf("0x%x", t.V)))
+	}
+	if t.R != nil {
+		o.Set("r", a.NewString(fmt.Sprintf("0x%x", t.R)))
+	}
+	if t.S != nil {
+		o.Set("s", a.NewString(fmt.Sprintf("0x%x", t.S)))
 	}
 
 	res := o.MarshalTo(nil)

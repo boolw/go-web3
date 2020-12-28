@@ -45,6 +45,15 @@ func (e *Eth) GetBlockByNumber(i web3.BlockNumber, full bool) (*web3.Block, erro
 	return b, nil
 }
 
+// GetTransactionByHash returns information about a block by hash.
+func (e *Eth) GetTransactionByHash(hash web3.Hash) (*web3.TransactionResp, error) {
+	var b *web3.TransactionResp
+	if err := e.c.Call("eth_getTransactionByHash", &b, hash); err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
 // GetBlockByHash returns information about a block by hash.
 func (e *Eth) GetBlockByHash(hash web3.Hash, full bool) (*web3.Block, error) {
 	var b *web3.Block
