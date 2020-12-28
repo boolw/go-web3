@@ -29,7 +29,7 @@ func NewTransport(url string) (Transport, error) {
 	if strings.HasPrefix(url, wsPrefix) {
 		return newWebsocket(url)
 	}
-	if _, err := os.Stat(url); !os.IsNotExist(err) {
+	if _, err := os.Stat(url); err == nil {
 		// path exists, it could be an ipc path
 		return newIPC(url)
 	}
