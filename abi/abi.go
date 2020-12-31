@@ -96,6 +96,9 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 		case "fallback":
 			// do nothing
 
+		case "receive":
+			// do nothing
+
 		default:
 			return fmt.Errorf("unknown field type '%s'", field.Type)
 		}
