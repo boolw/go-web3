@@ -173,9 +173,9 @@ type TransactionResp struct {
 
 	BlockHash        Hash
 	BlockNumber      uint64
-	Nonce            uint64
-	TransactionIndex uint64
-	V                *big.Int
-	R                *big.Int
-	S                *big.Int
+	//Nonce            uint64
+	//TransactionIndex uint64
+	//V                *big.Int
+	//R                *big.Int
+	//S                *big.Int
 }

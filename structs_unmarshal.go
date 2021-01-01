@@ -121,6 +121,9 @@ func (t *Transaction) unmarshalJSON(v *fastjson.Value) error {
 	if err = decodeAddr(&t.From, v, "from"); err != nil {
 		return err
 	}
+	if t.To,err = decodeString(v, "to"); err != nil {
+		return err
+	}
 	if t.GasPrice, err = decodeUint(v, "gasPrice"); err != nil {
 		return err
 	}
@@ -159,21 +162,21 @@ func (t *TransactionResp) unmarshalJSON(v *fastjson.Value) error {
 	if t.BlockNumber, err = decodeUint(v, "blockNumber"); err != nil {
 		return err
 	}
-	if t.Nonce, err = decodeUint(v, "nonce"); err != nil {
-		return err
-	}
-	if t.TransactionIndex, err = decodeUint(v, "transactionIndex"); err != nil {
-		return err
-	}
-	if t.V, err = decodeBigInt(t.V, v, "v"); err != nil {
-		return err
-	}
-	if t.R, err = decodeBigInt(t.R, v, "r"); err != nil {
-		return err
-	}
-	if t.S, err = decodeBigInt(t.S, v, "s"); err != nil {
-		return err
-	}
+	//if t.Nonce, err = decodeUint(v, "nonce"); err != nil {
+	//	return err
+	//}
+	//if t.TransactionIndex, err = decodeUint(v, "transactionIndex"); err != nil {
+	//	return err
+	//}
+	//if t.V, err = decodeBigInt(t.V, v, "v"); err != nil {
+	//	return err
+	//}
+	//if t.R, err = decodeBigInt(t.R, v, "r"); err != nil {
+	//	return err
+	//}
+	//if t.S, err = decodeBigInt(t.S, v, "s"); err != nil {
+	//	return err
+	//}
 	return nil
 }
 
@@ -385,6 +388,14 @@ func decodeBool(v *fastjson.Value, key string) (bool, error) {
 		return true, nil
 	}
 	return false, fmt.Errorf("field '%s' with content '%s' cannot be decoded as bool", key, str)
+}
+
+func decodeString(v *fastjson.Value, key string) (string, error) {
+	vv := v.Get(key)
+	if vv == nil {
+		return "", fmt.Errorf("field '%s' not found", key)
+	}
+	return strings.Trim(vv.String(), "\""),nil
 }
 
 func unmarshalTextByte(dst, src []byte, size int) error {

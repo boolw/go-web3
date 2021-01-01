@@ -67,6 +67,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 
 	o := a.NewObject()
 	o.Set("from", a.NewString(t.From.String()))
+	o.Set("hash", a.NewString(t.Hash.String()))
 	if t.To != "" {
 		o.Set("to", a.NewString(t.To))
 	}
@@ -104,17 +105,17 @@ func (t *TransactionResp) MarshalJSON() ([]byte, error) {
 
 	o.Set("blockHash", a.NewString(t.Hash.String()))
 	o.Set("blockNumber", a.NewString(fmt.Sprintf("0x%x", t.BlockNumber)))
-	o.Set("nonce", a.NewString(fmt.Sprintf("0x%x", t.Nonce)))
-	o.Set("transactionIndex", a.NewString(fmt.Sprintf("0x%x", t.TransactionIndex)))
-	if t.V != nil {
-		o.Set("v", a.NewString(fmt.Sprintf("0x%x", t.V)))
-	}
-	if t.R != nil {
-		o.Set("r", a.NewString(fmt.Sprintf("0x%x", t.R)))
-	}
-	if t.S != nil {
-		o.Set("s", a.NewString(fmt.Sprintf("0x%x", t.S)))
-	}
+	//o.Set("nonce", a.NewString(fmt.Sprintf("0x%x", t.Nonce)))
+	//o.Set("transactionIndex", a.NewString(fmt.Sprintf("0x%x", t.TransactionIndex)))
+	//if t.V != nil {
+	//	o.Set("v", a.NewString(fmt.Sprintf("0x%x", t.V)))
+	//}
+	//if t.R != nil {
+	//	o.Set("r", a.NewString(fmt.Sprintf("0x%x", t.R)))
+	//}
+	//if t.S != nil {
+	//	o.Set("s", a.NewString(fmt.Sprintf("0x%x", t.S)))
+	//}
 
 	res := o.MarshalTo(nil)
 	defaultArena.Put(a)
