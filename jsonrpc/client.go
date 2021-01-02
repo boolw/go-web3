@@ -40,3 +40,10 @@ func (c *Client) Close() error {
 func (c *Client) Call(method string, out interface{}, params ...interface{}) error {
 	return c.transport.Call(method, out, params...)
 }
+
+func (c *Client) SetTransport(trans transport.Transport)  {
+	if c.transport != nil {
+		c.transport.Close()
+	}
+	c.transport = trans
+}
