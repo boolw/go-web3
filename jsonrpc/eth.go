@@ -20,7 +20,7 @@ func (c *Client) Eth() *Eth {
 
 // Accounts returns a list of addresses owned by client.
 func (e *Eth) Accounts() ([]web3.Address, error) {
-	var out []web3.Address
+	out := make([]web3.Address, 0)
 	if err := e.c.Call("eth_accounts", &out); err != nil {
 		return nil, err
 	}
@@ -38,8 +38,8 @@ func (e *Eth) BlockNumber() (uint64, error) {
 
 // GetBlockByNumber returns information about a block by block number.
 func (e *Eth) GetBlockByNumber(i web3.BlockNumber, full bool) (*web3.Block, error) {
-	var b *web3.Block
-	if err := e.c.Call("eth_getBlockByNumber", &b, i.String(), full); err != nil {
+	b := new(web3.Block)
+	if err := e.c.Call("eth_getBlockByNumber", b, i.String(), full); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -47,8 +47,8 @@ func (e *Eth) GetBlockByNumber(i web3.BlockNumber, full bool) (*web3.Block, erro
 
 // GetTransactionByHash returns information about a block by hash.
 func (e *Eth) GetTransactionByHash(hash web3.Hash) (*web3.TransactionResp, error) {
-	var b *web3.TransactionResp
-	if err := e.c.Call("eth_getTransactionByHash", &b, hash); err != nil {
+	b := new(web3.TransactionResp)
+	if err := e.c.Call("eth_getTransactionByHash", b, hash); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -56,8 +56,8 @@ func (e *Eth) GetTransactionByHash(hash web3.Hash) (*web3.TransactionResp, error
 
 // GetBlockByHash returns information about a block by hash.
 func (e *Eth) GetBlockByHash(hash web3.Hash, full bool) (*web3.Block, error) {
-	var b *web3.Block
-	if err := e.c.Call("eth_getBlockByHash", &b, hash, full); err != nil {
+	b := new(web3.Block)
+	if err := e.c.Call("eth_getBlockByHash", b, hash, full); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -72,8 +72,8 @@ func (e *Eth) SendTransaction(txn *web3.Transaction) (web3.Hash, error) {
 
 // GetTransactionReceipt returns the receipt of a transaction by transaction hash.
 func (e *Eth) GetTransactionReceipt(hash web3.Hash) (*web3.Receipt, error) {
-	var receipt *web3.Receipt
-	err := e.c.Call("eth_getTransactionReceipt", &receipt, hash)
+	receipt := new(web3.Receipt)
+	err := e.c.Call("eth_getTransactionReceipt", receipt, hash)
 	return receipt, err
 }
 
