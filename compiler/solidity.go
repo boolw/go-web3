@@ -79,8 +79,8 @@ func (s *Solidity) compileImpl(code string, files ...string) (map[string]*Artifa
 		return nil, fmt.Errorf("failed to compile: %s", string(stderr.Bytes()))
 	}
 
-	var output *solcOutput
-	if err := json.Unmarshal(stdout.Bytes(), &output); err != nil {
+	output := new(solcOutput)
+	if err := json.Unmarshal(stdout.Bytes(), output); err != nil {
 		return nil, err
 	}
 

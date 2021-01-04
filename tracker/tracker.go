@@ -950,8 +950,8 @@ func (t *Tracker) GetSavedFilters() ([]*FilterConfig, error) {
 
 	config := []*FilterConfig{}
 	for _, item := range data {
-		var res *FilterConfig
-		if err := json.Unmarshal(item, &res); err != nil {
+		res := new(FilterConfig)
+		if err := json.Unmarshal(item, res); err != nil {
 			return nil, err
 		}
 		config = append(config, res)

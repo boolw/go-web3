@@ -171,8 +171,8 @@ func EncodeBlock(block ...BlockNumber) BlockNumber {
 type TransactionResp struct {
 	Transaction
 
-	BlockHash        Hash
-	BlockNumber      uint64
+	BlockHash   Hash
+	BlockNumber uint64
 	//Nonce            uint64
 	//TransactionIndex uint64
 	//V                *big.Int

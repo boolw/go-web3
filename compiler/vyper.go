@@ -34,7 +34,7 @@ func (v *Vyper) Compile(files ...string) (map[string]*Artifact, error) {
 		return nil, fmt.Errorf("failed to compile: %s", string(stderr.Bytes()))
 	}
 
-	var output map[string]interface{}
+	output := make(map[string]interface{}, 0)
 	if err := json.Unmarshal(stdout.Bytes(), &output); err != nil {
 		return nil, err
 	}

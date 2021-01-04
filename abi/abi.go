@@ -36,9 +36,9 @@ func MustNewABI(s string) *ABI {
 
 // NewABIFromReader returns an ABI object from a reader
 func NewABIFromReader(r io.Reader) (*ABI, error) {
-	var abi *ABI
+	abi := new(ABI)
 	dec := json.NewDecoder(r)
-	if err := dec.Decode(&abi); err != nil {
+	if err := dec.Decode(abi); err != nil {
 		return nil, err
 	}
 	return abi, nil
@@ -46,7 +46,7 @@ func NewABIFromReader(r io.Reader) (*ABI, error) {
 
 // UnmarshalJSON implements json.Unmarshaler interface
 func (a *ABI) UnmarshalJSON(data []byte) error {
-	var fields []struct {
+	fields := make([]struct {
 		Type            string
 		Name            string
 		Constant        bool
@@ -54,14 +54,14 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 		StateMutability string
 		Inputs          arguments
 		Outputs         arguments
-	}
+	}, 0)
 
 	if err := json.Unmarshal(data, &fields); err != nil {
 		return err
 	}
 
-	a.Methods = make(map[string]*Method)
-	a.Events = make(map[string]*Event)
+	a.Methods = make(map[string]*Method, 0)
+	a.Events = make(map[string]*Event, 0)
 
 	for _, field := range fields {
 		switch field.Type {
@@ -246,8 +246,8 @@ func (a *arguments) Type() *Type {
 }
 
 func (a *argument) UnmarshalJSON(data []byte) error {
-	var arg *ArgumentStr
-	if err := json.Unmarshal(data, &arg); err != nil {
+	arg := new(ArgumentStr)
+	if err := json.Unmarshal(data, arg); err != nil {
 		return fmt.Errorf("argument json err: %v", err)
 	}
 
