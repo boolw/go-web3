@@ -29,6 +29,7 @@ func TestMarshal(t *testing.T) {
 			Input: &Transaction{},
 			Result: `{
 				"from": "` + addr0 + `",
+				"hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
 				"gasPrice": "0x0",
 				"gas": "0x0"
 			}`,
@@ -41,6 +42,7 @@ func TestMarshal(t *testing.T) {
 			},
 			Result: `{
 				"from": "` + addr0 + `",
+				"hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
 				"gasPrice": "0x64",
 				"gas": "0x32",
 				"value": "0x64"
