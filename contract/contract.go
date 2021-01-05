@@ -98,7 +98,7 @@ func (c *Contract) Call(method string, block web3.BlockNumber, args ...interface
 	}
 	defer func() {
 		if e := recover();e != nil{
-			err = fmt.Errorf("method %s call error : %v",method,e)
+			err = fmt.Errorf("%s call %s method error : %v",c.addr,method,e)
 		}
 	}()
 	respInterface, err := abi.Decode(m.Outputs, raw)
@@ -118,7 +118,7 @@ func (c *Contract) CallStruct(method string, out interface{},block web3.BlockNum
 	}
 	defer func() {
 		if e := recover();e != nil{
-			err = fmt.Errorf("method %s call error : %v",method,e)
+			err = fmt.Errorf("%s call %s method error : %v",c.addr,method,e)
 		}
 	}()
 	err = abi.DecodeStruct(m.Outputs, raw,out)
