@@ -54,16 +54,16 @@ func (c *Contract) EstimateGas(method string, args ...interface{}) (uint64, erro
 }
 
 // Call calls a method in the contract
-func (c *Contract) Call(method string, block web3.BlockNumber, args ...interface{}) (map[string]interface{}, error) {
+func (c *Contract) callContract(method string, block web3.BlockNumber, args ...interface{}) (*abi.Method,[]byte, error) {
 	m, ok := c.abi.Methods[method]
 	if !ok {
-		return nil, fmt.Errorf("method %s not found", method)
+		return nil, nil,fmt.Errorf("method %s not found", method)
 	}
 
 	// Encode input
 	data, err := abi.Encode(args, m.Inputs)
 	if err != nil {
-		return nil, err
+		return nil,nil, err
 	}
 	data = append(m.ID(), data...)
 
@@ -78,22 +78,56 @@ func (c *Contract) Call(method string, block web3.BlockNumber, args ...interface
 
 	rawStr, err := c.provider.Eth().Call(msg, block)
 	if err != nil {
-		return nil, err
+		return nil,nil, err
 	}
 
 	// Decode output
 	raw, err := hex.DecodeString(rawStr[2:])
 	if err != nil {
-		return nil, err
+		return nil,nil, err
 	}
+	return m,raw, nil
+}
+
+
+// Call calls a method in the contract
+func (c *Contract) Call(method string, block web3.BlockNumber, args ...interface{}) (resp map[string]interface{},err error) {
+	m,raw,err := c.callContract(method,block,args...)
+	if err != nil {
+		return nil,err
+	}
+	defer func() {
+		if e := recover();e != nil{
+			err = fmt.Errorf("method %s call error : %v",method,e)
+		}
+	}()
 	respInterface, err := abi.Decode(m.Outputs, raw)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := respInterface.(map[string]interface{})
+	resp = respInterface.(map[string]interface{})
 	return resp, nil
 }
+
+// Call calls a method in the contract
+func (c *Contract) CallStruct(method string, out interface{},block web3.BlockNumber, args ...interface{}) (err error) {
+	m,raw,err := c.callContract(method,block,args...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if e := recover();e != nil{
+			err = fmt.Errorf("method %s call error : %v",method,e)
+		}
+	}()
+	err = abi.DecodeStruct(m.Outputs, raw,out)
+	if err != nil {
+		return  err
+	}
+	return nil
+}
+
 
 // Txn creates a new transaction object
 func (c *Contract) Txn(method string, args ...interface{}) *Txn {
