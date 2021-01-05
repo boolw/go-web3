@@ -121,7 +121,7 @@ func (t *Transaction) unmarshalJSON(v *fastjson.Value) error {
 	if err = decodeAddr(&t.From, v, "from"); err != nil {
 		return err
 	}
-	if t.To,err = decodeString(v, "to"); err != nil {
+	if t.To, err = decodeString(v, "to"); err != nil {
 		return err
 	}
 	if t.GasPrice, err = decodeUint(v, "gasPrice"); err != nil {
@@ -208,6 +208,9 @@ func (r *Receipt) UnmarshalJSON(buf []byte) error {
 		return err
 	}
 	if r.BlockNumber, err = decodeUint(v, "blockNumber"); err != nil {
+		return err
+	}
+	if r.Status, err = decodeUint(v, "status"); err != nil {
 		return err
 	}
 	if r.GasUsed, err = decodeUint(v, "gasUsed"); err != nil {
@@ -395,7 +398,7 @@ func decodeString(v *fastjson.Value, key string) (string, error) {
 	if vv == nil {
 		return "", fmt.Errorf("field '%s' not found", key)
 	}
-	return strings.Trim(vv.String(), "\""),nil
+	return strings.Trim(vv.String(), "\""), nil
 }
 
 func unmarshalTextByte(dst, src []byte, size int) error {
