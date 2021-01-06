@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/boolw/go-web3"
+	"github.com/mitchellh/mapstructure"
 )
 
 // Decode decodes the input with a given type
@@ -39,7 +39,7 @@ func decode(t *Type, input []byte) (interface{}, []byte, error) {
 		if err != nil {
 			return nil, nil, err
 		}
-	} else {
+	} else if len(input) >= 32 {
 		data = input[:32]
 	}
 
