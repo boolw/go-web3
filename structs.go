@@ -81,6 +81,15 @@ type Transaction struct {
 	GasPrice uint64
 	Gas      uint64
 	Value    *big.Int
+
+	/*Exta*/
+	BlockHash        Hash
+	BlockNumber      uint64
+	Nonce            uint64
+	TransactionIndex uint64
+	//V                *big.Int
+	//R                *big.Int
+	//S                *big.Int
 }
 
 type CallMsg struct {
@@ -167,16 +176,4 @@ func EncodeBlock(block ...BlockNumber) BlockNumber {
 		return Latest
 	}
 	return block[0]
-}
-
-type TransactionResp struct {
-	Transaction
-
-	BlockHash   Hash
-	BlockNumber uint64
-	//Nonce            uint64
-	//TransactionIndex uint64
-	//V                *big.Int
-	//R                *big.Int
-	//S                *big.Int
 }
