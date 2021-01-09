@@ -119,6 +119,10 @@ func (m *Method) Sig() string {
 	return buildSignature(m.Name, m.Inputs)
 }
 
+func (m *Method) MethodSig() string {
+	return fmt.Sprintf("%s %s", m.Sig(), buildSignature("returns ", m.Outputs))
+}
+
 // ID returns the id of the method
 func (m *Method) ID() []byte {
 	k := acquireKeccak()
