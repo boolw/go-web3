@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/boolw/go-web3/jsonrpc/codec"
+	"github.com/gorilla/websocket"
 )
 
 func newWebsocket(url string) (Transport, error) {
@@ -179,8 +179,9 @@ func (s *stream) setHandler(id uint64, ack chan *ackMessage) {
 func (s *stream) Call(method string, out interface{}, params ...interface{}) error {
 	seq := s.incSeq()
 	request := codec.Request{
-		ID:     seq,
-		Method: method,
+		ID:      seq,
+		Method:  method,
+		Jsonrpc: "2.0",
 	}
 	if len(params) > 0 {
 		data, err := json.Marshal(params)
