@@ -120,6 +120,9 @@ func (m *Method) Sig() string {
 }
 
 func (m *Method) MethodSig() string {
+	if len(m.Outputs.tuple) > 0 {
+		return m.Sig()
+	}
 	return fmt.Sprintf("%s %s", m.Sig(), buildSignature("returns ", m.Outputs))
 }
 
