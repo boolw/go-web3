@@ -121,9 +121,9 @@ func (m *Method) Sig() string {
 
 func (m *Method) MethodSig() string {
 	if len(m.Outputs.tuple) == 0 {
-		return m.Sig()
+		return buildFunctionSignature(m.Name, m.Inputs)
 	}
-	return fmt.Sprintf("%s %s", m.Sig(), buildSignature("returns ", m.Outputs))
+	return fmt.Sprintf("%s %s", buildFunctionSignature(m.Name, m.Inputs), buildFunctionSignature("returns ", m.Outputs))
 }
 
 // ID returns the id of the method
@@ -145,6 +145,10 @@ type Event struct {
 // Sig returns the signature of the event
 func (e *Event) Sig() string {
 	return buildSignature(e.Name, e.Inputs)
+}
+
+func (e *Event) MethodSig() string {
+	return buildFunctionSignature(e.Name, e.Inputs)
 }
 
 // ID returns the id of the event used during logs
@@ -222,6 +226,14 @@ func buildSignature(name string, typ *Type) string {
 	types := make([]string, len(typ.tuple))
 	for i, input := range typ.tuple {
 		types[i] = input.Elem.raw
+	}
+	return fmt.Sprintf("%v(%v)", name, strings.Join(types, ","))
+}
+
+func buildFunctionSignature(name string, typ *Type) string {
+	types := make([]string, len(typ.tuple))
+	for i, input := range typ.tuple {
+		types[i] = fmt.Sprintf("%s %s", input.Elem.raw, input.Name)
 	}
 	return fmt.Sprintf("%v(%v)", name, strings.Join(types, ","))
 }
