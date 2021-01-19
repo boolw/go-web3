@@ -2,6 +2,7 @@ package abi
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"hash"
@@ -112,6 +113,7 @@ type Method struct {
 	Const   bool
 	Inputs  *Type
 	Outputs *Type
+	id      []byte
 }
 
 // Sig returns the signature of the method
@@ -128,11 +130,14 @@ func (m *Method) MethodSig() string {
 
 // ID returns the id of the method
 func (m *Method) ID() []byte {
+	if len(m.id) > 0 {
+		return m.id
+	}
 	k := acquireKeccak()
 	k.Write([]byte(m.Sig()))
-	dst := k.Sum(nil)[:4]
+	m.id = k.Sum(nil)[:4]
 	releaseKeccak(k)
-	return dst
+	return m.id
 }
 
 // Event is a triggered log mechanism
@@ -140,6 +145,7 @@ type Event struct {
 	Name      string
 	Anonymous bool
 	Inputs    *Type
+	id        web3.Hash
 }
 
 // Sig returns the signature of the event
@@ -152,13 +158,16 @@ func (e *Event) MethodSig() string {
 }
 
 // ID returns the id of the event used during logs
-func (e *Event) ID() (res web3.Hash) {
+func (e *Event) ID() web3.Hash {
+	if binary.BigEndian.Uint64(e.id[:]) > 0 {
+		return e.id
+	}
 	k := acquireKeccak()
 	k.Write([]byte(e.Sig()))
 	dst := k.Sum(nil)
 	releaseKeccak(k)
-	copy(res[:], dst)
-	return
+	copy(e.id[:], dst)
+	return e.id
 }
 
 // MustNewEvent creates a new solidity event object or fails
