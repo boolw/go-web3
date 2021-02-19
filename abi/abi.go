@@ -242,7 +242,11 @@ func buildSignature(name string, typ *Type) string {
 func buildFunctionSignature(name string, typ *Type) string {
 	types := make([]string, len(typ.tuple))
 	for i, input := range typ.tuple {
-		types[i] = fmt.Sprintf("%s %s", input.Elem.raw, input.Name)
+		if input.Name == "" {
+			types[i] = input.Elem.raw
+		} else {
+			types[i] = fmt.Sprintf("%s %s", input.Elem.raw, input.Name)
+		}
 	}
 	return fmt.Sprintf("%v(%v)", name, strings.Join(types, ","))
 }
