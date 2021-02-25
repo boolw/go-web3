@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/boolw/go-web3"
 )
@@ -12,11 +13,14 @@ import (
 func ParseLog(args *Type, log *web3.Log) (map[string]interface{}, error) {
 	var indexed, nonIndexed []*TupleElem
 
-	for _, arg := range args.TupleElems() {
+	for idx, arg := range args.TupleElems() {
 		if arg.Indexed {
 			indexed = append(indexed, arg)
 		} else {
 			nonIndexed = append(nonIndexed, arg)
+		}
+		if arg.Name == "" {
+			arg.Name = strconv.Itoa(idx)
 		}
 	}
 
