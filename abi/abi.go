@@ -122,7 +122,7 @@ func (m *Method) Sig() string {
 }
 
 func (m *Method) MethodSig() string {
-	if m.Outputs == nil || len(m.Outputs.tuple) == 0 {
+	if m.Outputs == nil || m.Outputs.tuple == nil || len(m.Outputs.tuple) == 0 {
 		return buildFunctionSignature(m.Name, m.Inputs)
 	}
 	return fmt.Sprintf("%s %s", buildFunctionSignature(m.Name, m.Inputs), buildFunctionSignature("returns ", m.Outputs))
