@@ -79,8 +79,8 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 			if field.StateMutability == "view" || field.StateMutability == "pure" {
 				c = true
 			}
-
-			a.Methods[field.Name] = &Method{
+			name := a.overloadedMethodName(field.Name)
+			a.Methods[name] = &Method{
 				Name:    field.Name,
 				Const:   c,
 				Inputs:  field.Inputs.Type(),
@@ -88,7 +88,8 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 			}
 
 		case "event":
-			a.Events[field.Name] = &Event{
+			name := a.overloadedEventName(field.Name)
+			a.Events[name] = &Event{
 				Name:      field.Name,
 				Anonymous: field.Anonymous,
 				Inputs:    field.Inputs.Type(),
@@ -105,6 +106,36 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 		}
 	}
 	return nil
+}
+
+// overloadedMethodName returns the next available name for a given function.
+// Needed since solidity allows for function overload.
+//
+// e.g. if the abi contains Methods send, send1
+// overloadedMethodName would return send2 for input send.
+func (abi *ABI) overloadedMethodName(rawName string) string {
+	name := rawName
+	_, ok := abi.Methods[name]
+	for idx := 0; ok; idx++ {
+		name = fmt.Sprintf("%s%d", rawName, idx)
+		_, ok = abi.Methods[name]
+	}
+	return name
+}
+
+// overloadedEventName returns the next available name for a given event.
+// Needed since solidity allows for event overload.
+//
+// e.g. if the abi contains events received, received1
+// overloadedEventName would return received2 for input received.
+func (abi *ABI) overloadedEventName(rawName string) string {
+	name := rawName
+	_, ok := abi.Events[name]
+	for idx := 0; ok; idx++ {
+		name = fmt.Sprintf("%s%d", rawName, idx)
+		_, ok = abi.Events[name]
+	}
+	return name
 }
 
 // Method is a callable function in the contract
