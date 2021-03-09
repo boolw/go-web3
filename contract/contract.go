@@ -14,6 +14,7 @@ import (
 type Contract struct {
 	addr     web3.Address
 	from     *web3.Address
+	value    *big.Int
 	abi      *abi.ABI
 	provider *jsonrpc.Client
 }
@@ -53,6 +54,10 @@ func (c *Contract) SetAddress(addr web3.Address) {
 	c.addr = addr
 }
 
+func (c *Contract) SetValue(value *big.Int) {
+	c.value = value
+}
+
 // EstimateGas estimates the gas for a contract call
 func (c *Contract) EstimateGas(method string, args ...interface{}) (uint64, error) {
 	return c.Txn(method, args).EstimateGas()
@@ -74,8 +79,9 @@ func (c *Contract) callContract(method string, block web3.BlockNumber, args ...i
 
 	// Call function
 	msg := &web3.CallMsg{
-		To:   c.addr,
-		Data: data,
+		To:    c.addr,
+		Data:  data,
+		Value: c.value,
 	}
 	if c.from != nil {
 		msg.From = *c.from
