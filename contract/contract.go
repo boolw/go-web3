@@ -45,17 +45,20 @@ func (c *Contract) Addr() web3.Address {
 }
 
 // SetFrom sets the origin of the calls
-func (c *Contract) SetFrom(addr web3.Address) {
+func (c *Contract) SetFrom(addr web3.Address) *Contract{
 	c.from = &addr
+	return c
 }
 
 // SetAddress sets the origin of the calls
-func (c *Contract) SetAddress(addr web3.Address) {
+func (c *Contract) SetAddress(addr web3.Address) *Contract{
 	c.addr = addr
+	return c
 }
 
-func (c *Contract) SetValue(value *big.Int) {
+func (c *Contract) SetValue(value *big.Int)*Contract {
 	c.value = value
+	return c
 }
 
 // EstimateGas estimates the gas for a contract call
