@@ -145,7 +145,7 @@ func readSlice(input []byte, start int, length int) ([]byte, error) {
 	if len(input) < end{
 		return nil,fmt.Errorf("input %d read [%d:%d] error",len(input),start,length)
 	}
-	return input[start:length], nil
+	return input[start:end], nil
 }
 
 func readInteger(t *Type, b []byte) interface{} {
