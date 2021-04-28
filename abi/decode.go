@@ -12,8 +12,13 @@ import (
 )
 
 // Decode decodes the input with a given type
-func Decode(t *Type, input []byte) (interface{}, error) {
-	val, _, err := decode(t, input)
+func Decode(t *Type, input []byte) (val interface{}, err error) {
+	//defer func() {
+	//	if e := recover(); e != nil {
+	//		err = fmt.Errorf("decode 0x%s error : %v", hex.EncodeToString(input),e)
+	//	}
+	//}()
+	val, _, err = decode(t, input)
 	return val, err
 }
 
@@ -30,7 +35,6 @@ func DecodeStruct(t *Type, input []byte, out interface{}) error {
 }
 
 func decode(t *Type, input []byte) (interface{}, []byte, error) {
-	var data []byte
 	var length int
 	var err error
 
@@ -39,8 +43,6 @@ func decode(t *Type, input []byte) (interface{}, []byte, error) {
 		if err != nil {
 			return nil, nil, err
 		}
-	} else if len(input) >= 32 {
-		data = input[:32]
 	}
 
 	switch t.kind {
@@ -48,8 +50,11 @@ func decode(t *Type, input []byte) (interface{}, []byte, error) {
 		return decodeTuple(t, input)
 
 	case KindSlice:
-		return decodeArraySlice(t, input[32:], length)
-
+		if data,e := readSlice(input,32,0);e != nil {
+			return nil, nil, e
+		}else{
+			return decodeArraySlice(t, data, length)
+		}
 	case KindArray:
 		return decodeArraySlice(t, input, t.size)
 	}
@@ -57,31 +62,56 @@ func decode(t *Type, input []byte) (interface{}, []byte, error) {
 	var val interface{}
 	switch t.kind {
 	case KindBool:
-		val, err = decodeBool(data)
-
+		if data,e := readSlice(input,0,32);e != nil {
+			return nil, nil, e
+		}else{
+			val, err = decodeBool(data)
+		}
 	case KindInt, KindUInt:
-		val = readInteger(t, data)
-
+		if data,e := readSlice(input,0,32);e != nil {
+			return nil, nil, e
+		}else{
+			val = readInteger(t, data)
+		}
 	case KindString:
-		val = string(input[32 : 32+length])
-
+		if data,e := readSlice(input,32,length);e != nil {
+			return nil, nil, e
+		}else{
+			val = string(data)
+		}
 	case KindBytes:
-		val = input[32 : 32+length]
-
+		if data,e := readSlice(input,32,length);e != nil {
+			return nil, nil, e
+		}else{
+			val = data
+		}
 	case KindAddress:
-		val, err = readAddr(data)
-
+		if data,e := readSlice(input,0,32);e != nil {
+			return nil, nil, e
+		}else{
+			val, err = readAddr(data)
+		}
 	case KindFixedBytes:
-		val, err = readFixedBytes(t, data)
-
+		if data,e := readSlice(input,0,32);e != nil {
+			return nil, nil, e
+		}else{
+			val, err =readFixedBytes(t, data)
+		}
 	case KindFunction:
-		val, err = readFunctionType(t, data)
-
+		if data,e := readSlice(input,0,32);e != nil {
+			return nil, nil, e
+		}else{
+			val, err =readFunctionType(t, data)
+		}
 	default:
 		return nil, nil, fmt.Errorf("decoding not available for type '%s'", t.kind)
 	}
 
-	return val, input[32:], err
+	if data,e := readSlice(input,32,0);e != nil {
+		return nil, nil, e
+	}else{
+		return val, data, err
+	}
 }
 
 var (
@@ -100,6 +130,22 @@ func readAddr(b []byte) (web3.Address, error) {
 	}
 	copy(res[:], b[12:])
 	return res, nil
+}
+
+func readSlice(input []byte, start int, length int) ([]byte, error) {
+	end := len(input)
+	if start < 0{
+		start = end + start
+	}
+	if length < 0 {
+		end = end + length
+	} else if length > 0 {
+		end = start + length
+	}
+	if len(input) < end{
+		return nil,fmt.Errorf("input %d read [%d:%d] error",len(input),start,length)
+	}
+	return input[start:length], nil
 }
 
 func readInteger(t *Type, b []byte) interface{} {
