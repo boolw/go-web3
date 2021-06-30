@@ -311,7 +311,11 @@ func readOffset(data []byte, len int) (int, error) {
 }
 
 func readLength(data []byte) (int, error) {
-	lengthBig := big.NewInt(0).SetBytes(data[0:32])
+	input ,err := readSlice(data,0,32)
+	if err != nil {
+		return 0, err
+	}
+	lengthBig := big.NewInt(0).SetBytes(input)
 	if lengthBig.BitLen() > 63 {
 		return 0, fmt.Errorf("length larger than int64: %v", lengthBig.Int64())
 	}
