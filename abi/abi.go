@@ -350,3 +350,11 @@ func releaseKeccak(k hash.Hash) {
 	k.Reset()
 	keccakPool.Put(k)
 }
+
+func KeccakHash(data []byte) []byte {
+	k := acquireKeccak()
+	k.Write(data)
+	hash := k.Sum(nil)
+	releaseKeccak(k)
+	return hash
+}

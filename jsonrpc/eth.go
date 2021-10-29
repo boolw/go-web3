@@ -155,3 +155,11 @@ func (e *Eth) ChainID() (*big.Int, error) {
 	}
 	return parseBigInt(out), nil
 }
+
+func (e *Eth) GetStorageAt(addr web3.Address, hash web3.Hash, blockNumber web3.BlockNumber) (string, error) {
+	var out string
+	if err := e.c.Call("eth_getStorageAt", &out, addr, hash, blockNumber.String()); err != nil {
+		return "", err
+	}
+	return out, nil
+}
