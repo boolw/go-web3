@@ -94,6 +94,9 @@ func ParseTopic(t *Type, topic web3.Hash) (interface{}, error) {
 	case KindAddress:
 		return readAddr(topic[:])
 
+	case KindFixedBytes:
+		return topic.String(), nil
+
 	default:
 		return nil, fmt.Errorf("Topic parsing for type %s not supported", t.String())
 	}
