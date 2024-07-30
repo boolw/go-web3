@@ -94,6 +94,8 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 				Anonymous: field.Anonymous,
 				Inputs:    field.Inputs.Type(),
 			}
+		case "error":
+			// do nothing
 
 		case "fallback":
 			// do nothing
