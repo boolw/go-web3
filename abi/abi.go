@@ -19,6 +19,7 @@ type ABI struct {
 	Constructor *Method
 	Methods     map[string]*Method
 	Events      map[string]*Event
+	Errors      map[string]*Error
 }
 
 // NewABI returns a parsed ABI struct
@@ -63,6 +64,7 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 
 	a.Methods = make(map[string]*Method, 0)
 	a.Events = make(map[string]*Event, 0)
+	a.Errors = make(map[string]*Error, 0)
 
 	for _, field := range fields {
 		switch field.Type {
@@ -95,7 +97,10 @@ func (a *ABI) UnmarshalJSON(data []byte) error {
 				Inputs:    field.Inputs.Type(),
 			}
 		case "error":
-			// do nothing
+			a.Errors[field.Name] = &Error{
+				Name:   field.Name,
+				Inputs: field.Inputs.Type(),
+			}
 
 		case "fallback":
 			// do nothing
@@ -222,6 +227,68 @@ func NewEvent(name string) (*Event, error) {
 }
 
 func parseFunctionSignature(name string) (string, *Type, error) {
+	if !strings.HasSuffix(name, ")") {
+		return "", nil, fmt.Errorf("failed to parse input, expected 'name(types)'")
+	}
+	indx := strings.Index(name, "(")
+	if indx == -1 {
+		return "", nil, fmt.Errorf("failed to parse input, expected 'name(types)'")
+	}
+
+	funcName, signature := name[:indx], name[indx:]
+	signature = "tuple" + signature
+
+	typ, err := NewType(signature)
+	if err != nil {
+		return "", nil, err
+	}
+	return funcName, typ, nil
+}
+
+// Error is a solidity error object
+type Error struct {
+	Name   string
+	Inputs *Type
+	id     web3.Hash
+}
+
+// Sig returns the signature of the event
+func (e *Error) Sig() string {
+	return buildSignature(e.Name, e.Inputs)
+}
+
+// ID returns the id of the event used during logs
+func (e *Error) ID() web3.Hash {
+	if binary.BigEndian.Uint64(e.id[:]) > 0 {
+		return e.id
+	}
+	k := acquireKeccak()
+	k.Write([]byte(e.Sig()))
+	dst := k.Sum(nil)
+	releaseKeccak(k)
+	copy(e.id[:], dst)
+	return e.id
+}
+
+func (e *Error) MethodSig() string {
+	return buildFunctionSignature(e.Name, e.Inputs)
+}
+
+// NewError creates a new solidity error object
+func NewError(name string) (*Error, error) {
+	name, typ, err := parseEventOrErrorSignature("error ", name)
+	if err != nil {
+		return nil, err
+	}
+	return &Error{Name: name, Inputs: typ}, nil
+}
+
+func parseEventOrErrorSignature(prefix string, name string) (string, *Type, error) {
+	if !strings.HasPrefix(name, prefix) {
+		return "", nil, fmt.Errorf("prefix '%s' not found", prefix)
+	}
+	name = strings.TrimPrefix(name, prefix)
+
 	if !strings.HasSuffix(name, ")") {
 		return "", nil, fmt.Errorf("failed to parse input, expected 'name(types)'")
 	}
